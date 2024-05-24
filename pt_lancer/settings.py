@@ -143,6 +143,15 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+# Define the absolute filesystem path to the directory that will hold user-uploaded files.
+# Base url to serve media files
+MEDIA_URL = '/media/'
+
+# Path where media is stored'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+
+
 #login Redirection
 LOGIN_REDIRECT_URL = 'dashboard'
 
@@ -153,10 +162,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Temporary SMTP
-EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
-EMAIL_HOST_USER = 'af2c07a7e97336'
-EMAIL_HOST_PASSWORD = '506f72b87b5e80'
-EMAIL_PORT = '2525'
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = env('EMAIL_PORT')
 
 #Google TEST Auth
 GOOGLE_CLIENT_ID=env('GOOGLE_CLIENT_ID')

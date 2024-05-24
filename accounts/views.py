@@ -12,9 +12,14 @@ from django.utils.encoding import smart_str, DjangoUnicodeDecodeError
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth import login
 from django.urls import reverse
+from django.urls import reverse_lazy
 from django.shortcuts import redirect
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+# views.py
+from django.views.generic.edit import UpdateView
+
 
 # Create your views here.
 
@@ -79,11 +84,13 @@ class LoginUserView(GenericAPIView):
 
     
 
-class Dashboard(GenericAPIView):
-    permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
-
-    def get(self, request, *args, **kwargs):
-        return render(request, 'accounts/dashboard.html')
+@login_required
+def dashboard(request):
+    user = request.user
+    context = {
+        'user': user,
+    }
+    return render(request, 'accounts/dashboard.html', context)
 
     
 class PasswordResetRequestViews(GenericAPIView):
@@ -93,7 +100,6 @@ class PasswordResetRequestViews(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         return Response({'message':"a link has been sent to your email address, to reset your password!"}, status=status.HTTP_200_OK)
     
-
 class PassWordResetConfirm(GenericAPIView):
     def get(self, request, uidb64, token):
         try:
@@ -124,9 +130,38 @@ class LogoutUserView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
 
+# views.py# views.py
 
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views import View
+import logging
 
+logger = logging.getLogger(__name__)
 
+class UserProfileUpdateView(UpdateView):
+    model = User
+    template_name = 'accounts/dashboard.html'  # Use your actual template name
+    fields = []  # No form fields needed since we're handling the image upload directly
 
-            
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        profile_picture = request.FILES.get('profile_picture')
+        if profile_picture:
+            self.object.profile_picture = profile_picture
+            try:
+                self.object.save()
+                print("Profile picture saved successfully.")
+            except Exception as e:
+                print(f"Error saving profile picture: {e}")
+                # Add any additional error handling here if needed
+            return redirect(self.get_success_url())
+        return render(request, self.template_name, self.get_context_data())
+
+    def get_success_url(self):
+        # Redirect to the dashboard after a successful update
+        return reverse_lazy('dashboard')  # Replace 'dashboard' with your actual URL name

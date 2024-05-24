@@ -1,4 +1,3 @@
-#account/models.py
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
@@ -6,10 +5,13 @@ from django.utils import timezone
 from .manager import UserManager
 from rest_framework_simplejwt.tokens import RefreshToken
 
-
-
-#Auth_Dictionary
+# Auth Dictionary
 AUTH_PROVIDERS = {'email': 'email', 'google': 'google', 'facebook': 'facebook'}
+
+# Define the custom upload path function
+def user_profile_picture_upload_path(instance, filename):
+    # File will be uploaded to MEDIA_ROOT/profile_pics/user_<id>/<filename>
+    return 'profile_pictures/user_{0}/{1}'.format(instance.id, filename)
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True, verbose_name=_("Email Address"))
@@ -20,7 +22,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('trainer', _('Trainer')),
         ('client', _('Client')),
     ], verbose_name=_("Role"))
-    
+
+    profile_picture = models.ImageField(upload_to=user_profile_picture_upload_path, default='default_avatar.png')
+
     is_staff = models.BooleanField(default=False, verbose_name=_("Staff status"))
     is_active = models.BooleanField(default=True, verbose_name=_("Active"))
     is_superuser = models.BooleanField(default=False, verbose_name=_("Superuser status"))
@@ -47,7 +51,6 @@ class User(AbstractBaseUser, PermissionsMixin):
             'refresh':str(refresh),
             'access':str(refresh.access_token)
         }
-
 
 class OneTimePassword(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

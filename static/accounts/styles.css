@@ -9,12 +9,17 @@ body {
 /* Container styles */
 .container {
     max-width: 600px;
-    margin: 0 auto;
+    margin: auto; /* Center horizontally */
+    position: absolute;
+    left: 50%; /* Move left edge to center */
+    top: 50%; /* Move top edge to center */
+    transform: translate(-50%, -50%); /* Center vertically and horizontally */
     padding: 20px;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 
 /* Form styles */
 .form-group {

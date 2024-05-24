@@ -12,7 +12,19 @@
 </head>
 <body>
     <div class="container">
-        <h1>Greetings, {{ user.first_name }}!</h1>
+        <div class="menu-options">
+            <h2>Menu Options</h2>
+            <ul>
+                <li><a href="#">Profile</a></li>
+                <li><a href="#">Hire a Trainer</a></li>
+                <li><a href="#">Payment</a></li>
+                <li><a href="#">Terms & Conditions</a></li>
+                <li><a href="#">Contact Us</a></li>
+            </ul>
+        </div>
+        <div class="profile-section">
+            {% include 'accounts/profile.html' %}
+        </div>
     </div>
 </body>
 </html>

@@ -39,3 +39,4 @@ def send_normal_email(data):
         logger.info(f"Email sent to {data['to_email']}")
     except Exception as e:
         logger.error(f"Failed to send email to {data['to_email']} - {e}")
+
