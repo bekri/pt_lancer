@@ -1,41 +1,26 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Email Verification</title>
-    <script>
-        async function handleVerification(event) {
-            event.preventDefault();
-            const otp = document.getElementById('otp').value;
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-            const response = await fetch("{% url 'verify' %}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({ otp })
-            });
-
-            const data = await response.json();
-            if (response.status === 200) {
-                // Redirect to the URL provided in the response
-                window.location.href = data.redirect_url;
-            } else {
-                alert(data.message);
-            }
-        }
-    </script>
+    <!-- Link to your stylesheet -->
+    <link rel="stylesheet" href="{% static 'accounts/styles.css' %}">
 </head>
 <body>
-    <h1>Email Verification</h1>
-    <form method="post" onsubmit="handleVerification(event)">
-        {% csrf_token %}
-        <label for="otp">Enter Verification Code:</label>
-        <input type="text" id="otp" name="otp" required>
-        <button type="submit">Verify Email</button>
-    </form>
+    <div class="container">
+        <h1>Email Verification</h1>
+        <p>Please enter the verification code sent to your email.</p>
+        <form method="post" action="{% url 'verify' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="otp">Verification Code:</label>
+                <input type="text" id="otp" name="otp" maxlength="6" pattern="\d{6}" title="Enter the 6-digit code" required>
+            </div>
+            <button type="submit">Verify</button>
+        </form>
+    </div>
 </body>
 </html>

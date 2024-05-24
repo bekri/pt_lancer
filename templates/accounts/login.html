@@ -12,6 +12,7 @@
 <body>
     <div class="container">
         <h1>Login</h1>
+        
         <form method="post" action="{% url 'login' %}">
             {% csrf_token %}
             <div class="form-group">
@@ -23,6 +24,12 @@
                 <input type="password" id="password" name="password" required>
             </div>
             <button type="submit">Login</button>
+            
+            {% if messages %}
+            {% for message in messages %}
+                <p class="success-message">{{ message }}</p>
+            {% endfor %}
+            {% endif %}
         </form>
     </div>
 </body>

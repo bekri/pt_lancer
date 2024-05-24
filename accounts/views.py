@@ -9,6 +9,8 @@ from .models import OneTimePassword, User
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import smart_str, DjangoUnicodeDecodeError
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.shortcuts import redirect
+from django.contrib import messages
 
 # Create your views here.
 
@@ -23,12 +25,8 @@ class RegisterUserView(GenericAPIView):
             serializer.save()
             user=serializer.data
             send_code_to_user(user['email'])
-            #send email function user[email]
-            print(user)
-            return Response({
-            'data':user,
-            'message':f'Greetings , Thanks for signing up a passcode has been sent to verify your email address!'
-            }, status=status.HTTP_201_CREATED)
+            #after successful reistration redirect to the verification page
+            return redirect(('/verification'))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
@@ -45,17 +43,18 @@ class VerifyUserEmail(GenericAPIView):
             if not user.is_verified:
                 user.is_verified = True
                 user.save()
+                # Add a success message using Django's messages framework
+                messages.success(request, 'Email verified successfully! You can now access your account.')
+                # Redirect to the login page
+                return redirect('/login')
+            else:
                 return Response({
-                    'message': 'Email verified successfully'
+                    'message': 'User already verified'
                 }, status=status.HTTP_200_OK)
-            return Response({
-                'message': 'Code is invalid, or user already verified'
-            }, status=status.HTTP_204_NO_CONTENT)
         except OneTimePassword.DoesNotExist:
             return Response({
-                'message': 'Passcode not provided'
+                'message': 'Invalid passcode'
             }, status=status.HTTP_404_NOT_FOUND)
-        
 
 class LoginUserView(GenericAPIView):
     serializer_class = LoginSerializer
@@ -64,6 +63,9 @@ class LoginUserView(GenericAPIView):
         serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
+    def get(self, request):
+        email_verified = 'verified' in request.GET
+        return render(request, 'accounts/login.html', {'email_verified': email_verified})
 
     
 

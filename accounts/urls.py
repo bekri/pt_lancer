@@ -1,9 +1,6 @@
+# accounts/urls.py
 from django.urls import path
 from .views import RegisterUserView, VerifyUserEmail, LoginUserView, TestAuthentificationView, PassWordResetConfirm, PasswordResetRequestViews, SetNewPassword, LogoutUserView
-
-
-
-
 
 urlpatterns =[
     path('register/', RegisterUserView.as_view(), name='register'),
