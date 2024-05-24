@@ -1,3 +1,4 @@
+#accounts views.py
 from django.shortcuts import render
 from rest_framework.generics import GenericAPIView
 from .serializers import UserRegisterSerializer, LoginSerializer, SetNewPasswordSerializer, PasswordResetRequestSerializer, LogoutUserSerializer, VerifyEmailSerializer
@@ -9,7 +10,10 @@ from .models import OneTimePassword, User
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import smart_str, DjangoUnicodeDecodeError
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.contrib.auth import login
+from django.urls import reverse
 from django.shortcuts import redirect
+from django.conf import settings
 from django.contrib import messages
 
 # Create your views here.
@@ -23,10 +27,11 @@ class RegisterUserView(GenericAPIView):
         serializer=self.serializer_class(data=user_data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            user=serializer.data
+            user = serializer.data
             send_code_to_user(user['email'])
-            #after successful reistration redirect to the verification page
-            return redirect(('/verification'))
+            # Use settings to determine the protocol
+            protocol = 'https://' if settings.SECURE_SSL_REDIRECT else 'http://'
+            return redirect(f'{protocol}{request.get_host()}/verification')
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
@@ -59,24 +64,26 @@ class VerifyUserEmail(GenericAPIView):
 class LoginUserView(GenericAPIView):
     serializer_class = LoginSerializer
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        return Response(serializer.validated_data, status=status.HTTP_200_OK)
-    def get(self, request):
-        email_verified = 'verified' in request.GET
-        return render(request, 'accounts/login.html', {'email_verified': email_verified})
+        if serializer.is_valid():
+            user = serializer.validated_data['user']
+            # Check if the user's email is verified
+            if user.is_verified:  # Assuming 'is_verified' is the attribute for email verification
+                login(request, user)  # Log the user in
+                # Redirect to the dashboard URL
+                return redirect('/dashboard/')  # Adjust this to match your dashboard URL
+            else:
+                return Response({'error': 'Email is not verified.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     
 
-class TestAuthentificationView(GenericAPIView):
-    permission_classes = [IsAuthenticated]
+class Dashboard(GenericAPIView):
+    permission_classes = [IsAuthenticated]  # Ensure the user is authenticated
 
-    def get(self, request):
-        data={
-            'msg': 'it works'
-        }
-        return Response(data, status=status.HTTP_200_OK)
+    def get(self, request, *args, **kwargs):
+        return render(request, 'accounts/dashboard.html')
 
     
 class PasswordResetRequestViews(GenericAPIView):

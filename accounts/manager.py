@@ -1,6 +1,8 @@
+#accounts/manager.py
 from typing import Any
 from django.contrib.auth.models import BaseUserManager
 from django.core.exceptions import ValidationError
+from django.contrib.auth.password_validation import validate_password
 from django.core.validators import validate_email
 from django.utils.translation import gettext_lazy as _
 
@@ -12,18 +14,29 @@ class UserManager(BaseUserManager):
             raise ValidationError(_("Please enter a valid email address"))
 
     def create_user(self, email, first_name, last_name, password, role, **extra_fields):
-        if email:
-            email = self.normalize_email(email)
-            self.email_validator(email)
-        else:
-            raise ValueError("The email must be set")
-        if not first_name: 
-            raise ValueError("The first name must be set")
+         # Validate email
+        if not email:
+            raise ValueError(_("The email must be set"))
+        email = self.normalize_email(email)
+        validate_email(email)
+
+        # Validate names
+        if not first_name:
+            raise ValueError(_("The first name must be set"))
         if not last_name:
-            raise ValueError("The last name must be set")
+            raise ValueError(_("The last name must be set"))
+
+        # Validate role
         if role not in ('trainer', 'client'):
-            raise ValueError("The role must be either 'trainer' or 'client'")
-        
+            raise ValueError(_("The role must be either 'trainer' or 'client'"))
+
+        # Validate password
+        if password is not None:
+            validate_password(password)
+        else:
+            raise ValueError(_("A password must be provided"))
+
+        # Create the user object
         user = self.model(email=email, first_name=first_name, last_name=last_name, role=role, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)

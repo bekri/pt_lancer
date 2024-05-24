@@ -6,6 +6,7 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name='accounts/signup.html'), name='home'),
     path('login/', TemplateView.as_view(template_name='accounts/login.html'), name='login'),
     path('verification/', TemplateView.as_view(template_name='accounts/verify.html'), name='verify'),  # Add this line for the verification page
+    path('dashboard/', TemplateView.as_view(template_name='accounts/dashboard.html'), name='dashboard'), 
 
     path('admin/', admin.site.urls),
     path('api/v1/auth/', include('accounts.urls')),
