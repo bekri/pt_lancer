@@ -58,3 +58,17 @@ class OneTimePassword(models.Model):
 
     def __str__(self):
         return f"{self.user.first_name}- passcode"
+    
+
+class Country(models.Model):
+    name = models.CharField(max_length=100)
+
+    def _str_(self):
+        return self.name
+
+class City(models.Model):
+    country = models.ForeignKey(Country, related_name='cities', on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+
+    def _str_(self):
+        return self.name
