@@ -24,7 +24,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     ], verbose_name=_("Role"))
 
     profile_picture = models.ImageField(upload_to=user_profile_picture_upload_path, default='default_avatar.png')
+    
 
+    # Remove the address field and keep longitude, latitude, city, and country fields
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
+
+    #Admin Dashboard stuff
     is_staff = models.BooleanField(default=False, verbose_name=_("Staff status"))
     is_active = models.BooleanField(default=True, verbose_name=_("Active"))
     is_superuser = models.BooleanField(default=False, verbose_name=_("Superuser status"))
@@ -58,17 +66,3 @@ class OneTimePassword(models.Model):
 
     def __str__(self):
         return f"{self.user.first_name}- passcode"
-    
-
-class Country(models.Model):
-    name = models.CharField(max_length=100)
-
-    def _str_(self):
-        return self.name
-
-class City(models.Model):
-    country = models.ForeignKey(Country, related_name='cities', on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
-
-    def _str_(self):
-        return self.name

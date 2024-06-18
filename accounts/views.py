@@ -133,9 +133,6 @@ class LogoutUserView(GenericAPIView):
     
 
 # views.py# views.py
-
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views import View
 import logging
 
 logger = logging.getLogger(__name__)
@@ -165,3 +162,36 @@ class UserProfileUpdateView(UpdateView):
     def get_success_url(self):
         # Redirect to the dashboard after a successful update
         return reverse_lazy('dashboard')  # Replace 'dashboard' with your actual URL name
+    
+
+
+# Location saving
+# accounts/views.py
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from .models import User
+
+def save_location(request):
+    if request.method == 'POST':
+        # Extract data from the form
+        longitude = request.POST.get('longitude')
+        latitude = request.POST.get('latitude')
+        city = request.POST.get('city')
+        country = request.POST.get('country')
+
+        # Assuming you have a custom User model
+        user = request.user
+        user.longitude = longitude
+        user.latitude = latitude
+        user.city = city
+        user.country = country
+        user.save()
+
+        # Add a success message
+        messages.success(request, 'Location saved successfully!')
+
+        # Redirect back to the dashboard
+        return redirect('dashboard')  # Adjust the URL name as needed
+
+    # Handle GET requests (display the form)
+    return render(request, 'location_form.html')

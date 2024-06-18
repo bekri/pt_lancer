@@ -9,3 +9,10 @@ class ProfileForm(forms.ModelForm):
         widgets = {
             'profile_picture': forms.FileInput(attrs={'accept': 'image/*'}),  # Accept only image files
         }
+
+
+class LocationForm(forms.Form):
+    latitude = forms.FloatField()
+    longitude = forms.FloatField()
+    city = forms.CharField(max_length=100)
+    country = forms.CharField(max_length=100)

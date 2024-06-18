@@ -1,0 +1,65 @@
+<div class="save_location">
+    <p>Longitude: <span id="longitude"></span></p>
+    <p>Latitude: <span id="latitude"></span></p>
+    <p>City: <span id="city"></span></p>
+    <p>Country: <span id="country"></span></p>
+
+    <form method="post" action="{% url 'save_location' %}">
+        {% csrf_token %}
+        <input type="hidden" name="longitude" id="hidden_longitude">
+        <input type="hidden" name="latitude" id="hidden_latitude">
+        <input type="hidden" name="city" id="hidden_city">
+        <input type="hidden" name="country" id="hidden_country">
+        <!-- Other form elements or UI components -->
+        <button type="submit">Save Location</button>
+    </form>
+    <!-- Display success message here -->
+    {% if messages %}
+        <div class="alert alert-success">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    
+</div>
+
+<script>
+    window.onload = function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    };
+
+    function showPosition(position) {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        const apiKey = 'pk.0addd0bd47c1b87af45d10fb3b907986'; // Replace with your LocationIQ API key
+
+        // Make a request to the LocationIQ Geocoding API
+        fetch(`https://us1.locationiq.com/v1/reverse.php?key=${apiKey}&lat=${latitude}&lon=${longitude}&format=json`)
+            .then(response => response.json())
+            .then(data => {
+                const city = data.address.city;
+                const country = data.address.country;
+
+                // Display longitude, latitude, city, and country separately
+                document.getElementById('longitude').textContent = longitude;
+                document.getElementById('latitude').textContent = latitude;
+                document.getElementById('city').textContent = city;
+                document.getElementById('country').textContent = country;
+
+                // Set hidden input values for form submission
+                document.getElementById('hidden_longitude').value = longitude;
+                document.getElementById('hidden_latitude').value = latitude;
+                document.getElementById('hidden_city').value = city;
+                document.getElementById('hidden_country').value = country;
+            })
+            .catch(error => {
+                console.error('Error fetching geocode data:', error);
+            });
+    }
+</script>

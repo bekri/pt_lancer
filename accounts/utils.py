@@ -40,3 +40,6 @@ def send_normal_email(data):
     except Exception as e:
         logger.error(f"Failed to send email to {data['to_email']} - {e}")
 
+
+
+# update  location 

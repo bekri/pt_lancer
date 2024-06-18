@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="{% static 'accounts/styles.css' %}">
 </head>
 <body>
+        <!-- hidden inut to update  location. -->
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
     <div class="container">
         <div class="menu-options">
             <h2>Menu Options</h2>
@@ -24,6 +26,7 @@
         </div>
         <div class="profile-section">
             {% include 'accounts/profile.html' %}
+            {% include 'accounts/location_form.html' %}
         </div>
     </div>
 </body>

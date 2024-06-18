@@ -1,10 +1,8 @@
 <!-- templates/accounts/profile.html -->
 {% load static %}
-
 <div class="profile-info">
     <h2>Profile Information</h2>
-    
-   
+
     {% if user.profile_picture %}
         <img src="{{ user.profile_picture.url }}" alt="Profile Picture">
     {% else %}
@@ -19,4 +17,6 @@
     <p><strong>Email:</strong> {{ user.email }}</p>
     <p><strong>Phone:</strong> {{ user.phone }}</p>
     <p><strong>Role:</strong> {{ user.role }}</p>
+    
 </div>
+
